@@ -1,0 +1,25 @@
+version: '3'
+services:
+  rabbitmq:
+    image: rabbitmq:3.8.3-management
+    container_name: rabbitmq
+    restart: always
+    hostname: myRabbitmq
+    ports:
+      - 15672:15672
+      - 5672:5672
+#    volumes:
+#      - ../etc/rabbitmq:/var/lib/rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    networks:
+        my-networks:
+          ipv4_address: "172.18.0.14"
+networks:
+  my-networks:
+#    external: false
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.18.0.0/24"

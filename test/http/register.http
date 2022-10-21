@@ -1,0 +1,43 @@
+POST http://127.0.0.1:8888/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "xiangqiling",
+  "mobile": "13813891381",
+  "Password": "123456"
+}
+
+###
+POST http://test-go.com:8000/api_auth_test_gen_struct
+Content-Type: application/json
+
+{
+  "name": "x2",
+  "mobile": "13813891306",
+  "Password": "123456"
+}
+
+###
+POST http://127.0.0.1:8888/api/auth/test_gen_struct
+Content-Type: application/json
+
+{
+  "name": "x2",
+  "mobile": "13813891306",
+  "Password": "123456"
+}
+
+###
+POST http://test-go.com:8000/api_auth_login
+Content-Type: application/json
+
+{
+"mobile": "13813891381",
+"Password": "123456"
+}
+
+
+###
+GET http://127.0.0.1:8888/api/auth/info?id=1
+Content-Type: application/x-www-form-urlencoded
+Authorization:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjQzNzU3ODEsImp0aSI6IjUiLCJpc3MiOiJhcHAiLCJuYmYiOjE2NjQzMzE1ODF9.wai_Ew-HYrwyxzdbKXtexZoj2H7SRTzvZd2I_ToYUa8
