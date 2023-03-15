@@ -1,0 +1,18 @@
+  version: "3"
+  services:
+
+    canal:
+      image: canal/canal-adapter:v1.1.5
+      container_name: canal-adapter
+      privileged: true
+      restart: always
+
+
+      networks:
+        default:
+          ipv4_address: "172.21.0.10"
+
+  networks:
+    default:
+      external:
+        name: mynetwork

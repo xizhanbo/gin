@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  canal-admin:
+    image: canal/canal-admin
+    restart: always
+    hostname: canal-admin
+    ports:
+      - 8099:8089
+#    volumes:
+#      - ./etc/canal-admin/application.yml:/home/admin/canal-admin/conf/application.yml
+    networks:
+      default:
+        ipv4_address: "172.21.0.8"
+
+
+
+networks:
+  default:
+    external:
+      name: mynetwork
+
+# https://zhuanlan.zhihu.com/p/121728783
+# https://www.jianshu.com/p/bc899aecec71
+# https://code84.com/300050.html
+# https://github.com/alibaba/canal/wiki/Canal-Kafka-RocketMQ-QuickStart

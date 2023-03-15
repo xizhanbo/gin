@@ -1,0 +1,55 @@
+version: "3"
+services:
+  consul1:
+    image: consul:latest
+    container_name: node1
+    command: agent -server -bootstrap-expect=3 -node=node1 -bind=0.0.0.0 -client=0.0.0.0 -datacenter=dc1 -config-dir=/etc/consul.d
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./etc/consul:/etc/consul.d
+    networks:
+      my-networks:
+        ipv4_address: "172.18.0.4"
+
+  consul2:
+    image: consul:latest
+    container_name: node2
+    command: agent -server -retry-join=node1 -node=node2 -bind=0.0.0.0 -client=0.0.0.0 -datacenter=dc1 -config-dir=/etc/consul.d
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./etc/consul:/etc/consul.d
+    networks:
+      my-networks:
+        ipv4_address: "172.18.0.5"
+  consul3:
+    image: consul:latest
+    container_name: node3
+    command: agent -server -retry-join=node1 -node=node3 -bind=0.0.0.0 -client=0.0.0.0 -datacenter=dc1 -config-dir=/etc/consul.d
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./etc/consul:/etc/consul.d
+    networks:
+      my-networks:
+        ipv4_address: "172.18.0.6"
+  consul4:
+    image: consul:latest
+    container_name: node4
+    command: agent -retry-join=node1 -node=node4 -bind=0.0.0.0 -client=0.0.0.0 -datacenter=dc1 -ui -config-dir=/etc/consul.d
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./etc/consul:/etc/consul.d
+    ports:
+      - 8500:8500
+      - 8600:8600
+    networks:
+      my-networks:
+        ipv4_address: "172.18.0.7"
+
+
+networks:
+  my-networks:
+#    external: false
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.18.0.0/24"

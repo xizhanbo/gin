@@ -1,0 +1,1 @@
+{"service": {"name": "kong-database", "tags": ["rails"], "port": 5432}}

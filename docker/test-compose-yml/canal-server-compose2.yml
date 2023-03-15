@@ -1,0 +1,21 @@
+  version: "3"
+  services:
+
+    canal-2:
+      image: canal/canal-server:v1.1.5
+      container_name: canal-server-2
+      privileged: true
+      restart: always
+      ports:
+        - '11112:11111'
+      volumes:
+        - ./etc/canal-2/conf:/home/admin/canal-server/conf/
+        - ./volume/canal-2/logs:/home/admin/canal-server/logs/
+      networks:
+        default:
+          ipv4_address: "172.21.0.12"
+
+  networks:
+    default:
+      external:
+        name: mynetwork

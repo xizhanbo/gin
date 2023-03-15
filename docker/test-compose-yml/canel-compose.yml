@@ -1,0 +1,39 @@
+  version: "3"
+  services:
+
+    canal:
+      image: canal/canal-server:v1.1.5
+      container_name: canal
+      privileged: true
+      restart: always
+      ports:
+        - '11111:11111'
+      volumes:
+        - ./etc/canal/conf:/home/admin/canal-server/conf/
+        - ./volume/canal/logs:/home/admin/canal-server/logs/
+      environment:
+        - canal.auto.scan=true
+        - canal.destinations=destinationName # canal实例名称，根据自己喜好命名
+        - canal.instance.mysql.slaveId=1001 # canal作为模仿从站的ID，不可与主站重复
+        - canal.instance.master.address=172.21.0.3:3306 #mysql的连接地址
+        - canal.instance.dbUsername=root # mysql的用户
+        - canal.instance.dbPassword=123456 # mysql的密码
+        - canal.instance.connectionCharset=UTF-8
+        - canal.instance.tsdb.enable=true
+        - canal.instance.gtidon=false
+        - canal.instance.parser.parallelThreadSize=16
+        #- canal.instance.filter.regex=test.user # 此处为监听的正则表达式过滤，具体参考官网配置，多个用英文逗号隔开",",例如：dbname.tablename1,dbname.tablename2
+      networks:
+        default:
+          ipv4_address: "172.21.0.4"
+
+  networks:
+    default:
+      external:
+        name: mynetwork
+
+  # 单个canal服务
+  #参考文档：
+   #https://github.com/alibaba/canal
+   #https://zhuanlan.zhihu.com/p/365025478
+   #https://blog.csdn.net/qq_24950043/article/details/127181054

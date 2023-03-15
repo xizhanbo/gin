@@ -1,0 +1,27 @@
+version: '3'
+services:
+  rabbitmq:
+    image: rabbitmq:3.8.3-management
+    container_name: rabbitmq
+    restart: always
+    hostname: myRabbitmq
+    ports:
+      - 15672:15672
+      - 5672:5672
+    volumes:
+      - ./volume/rabbitmq:/var/lib/rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    networks:
+        default:
+          ipv4_address: "172.21.0.11"
+networks:
+  default:
+    external:
+      name: mynetwork
+
+
+#https://www.cnblogs.com/zengdingding/p/16641869.html
+#https://blog.csdn.net/qq_34832347/article/details/123692326
+#https://blog.csdn.net/qq_20569267/article/details/106607634
