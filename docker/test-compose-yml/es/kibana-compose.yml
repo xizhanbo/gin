@@ -1,0 +1,23 @@
+version: '3'
+services:
+  kibana:
+    image: cf1c9961eeb6
+    container_name: elk_kibana
+    restart: always
+    volumes:
+      - ./kibana.yml:/usr/share/kibana/config/kibana.yml
+    ports:
+      - 5601:5601
+    privileged: true    #环境变量
+    environment:
+      SERVER_NAME: kibana.lzyun.vip
+      ELASTICSEARCH_URL: http://elk_elasticsearch:9200
+    networks:
+      default:
+        ipv4_address: "172.21.0.14"
+
+networks:
+  default:
+    external:
+      name: mynetwork
+

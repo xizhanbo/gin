@@ -1,0 +1,115 @@
+package services
+
+import (
+	"fmt"
+	"os"
+	"syscall"
+)
+
+const (
+	MAX_EVENTS = 10
+)
+
+func EollTest() {
+	// 创建监听 Socket
+	fd, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_STREAM, 0)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
+
+	// 设置 Socket 重用地址
+	err = syscall.SetsockoptInt(fd, syscall.SOL_SOCKET, syscall.SO_REUSEADDR, 1)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
+
+	// 绑定 Socket 地址和端口
+	sa := &syscall.SockaddrInet4{Port: 8888}
+	err = syscall.Bind(fd, sa)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
+
+	// 开始监听
+	err = syscall.Listen(fd, syscall.SOMAXCONN)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
+
+	// 创建 epoll 句柄
+	epollFd, err := syscall.EpollCreate1(0)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
+
+	// 将监听 Socket 加入 epoll 监听列表
+	event := syscall.EpollEvent{}
+	event.Events = syscall.EPOLLIN | syscall.EPOLLET
+	event.Fd = int32(fd)
+	err = syscall.EpollCtl(epollFd, syscall.EPOLL_CTL_ADD, fd, &event)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
+
+	// 开始监听 epoll 事件
+	events := make([]syscall.EpollEvent, MAX_EVENTS)
+
+	for {
+		count, err := syscall.EpollWait(epollFd, events, -1)
+
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			os.Exit(1)
+		}
+
+		for i := 0; i < count; i++ {
+			// 处理监听 Socket 上的连接事件
+			if int(events[i].Fd) == fd {
+				connFd, _, err := syscall.Accept(fd)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "error: %v\n", err)
+					os.Exit(1)
+				}
+
+				// 将新连接的 Socket 加入 epoll 监听列表
+				event.Events = syscall.EPOLLIN | syscall.EPOLLET
+				event.Fd = int32(connFd)
+				err = syscall.EpollCtl(epollFd, syscall.EPOLL_CTL_ADD, connFd, &event)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "error: %v\n", err)
+					os.Exit(1)
+				}
+			} else {
+				// 处理连接上的数据读写事件
+				buf := make([]byte, 1024)
+				n, err := syscall.Read(int(events[i].Fd), buf)
+
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "error: %v\n", err)
+					syscall.Close(int(events[i].Fd))
+					continue
+				}
+
+				if n > 0 {
+					// 处理数据
+					data := buf[:n]
+					fmt.Printf("received: %s\n", string(data))
+
+					// 向连接写回数据
+					_, err := syscall.Write(int(events[i].Fd), data)
+					if err != nil {
+						fmt.Fprintf(os.Stderr, "error: %v\n", err)
+						syscall.Close(int(events[i].Fd))
+						continue
+					}
+				}
+			}
+		}
+	}
+}
